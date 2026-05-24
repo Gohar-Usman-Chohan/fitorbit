@@ -1,0 +1,477 @@
+1. Introduction
+1.1 General Information
+Project Name: FitOrbit Starting Date
+Controlling Agency: _____________________ Final Date:
+Prepared by: Gohar Usman Chohan
+Authorized by: ________________________________________
+1.2 Project Introduction
+Welcome to Fit Orbit, an online fitness platform designed to make health and exercise
+easy, personal, and enjoyable for everyone. Fit Orbit is made for people of all fitness
+levels, whether you are just starting your fitness journey or already have experience and
+want to achieve new goals. Our main aim is to help you build healthy habits and stay
+consistent with your workouts through a simple and effective online system.
+Fit Orbit combines modern technology with fitness knowledge to give you a complete
+and personalized experience. We use smart tools and science-based workout programs
+that adjust according to your goals, body type, and progress. Instead of following the
+same routine every day, our system creates plans that grow with you and match your
+lifestyle. Whether you want to lose weight, gain strength, improve your stamina, or just
+stay active, Fit Orbit helps you reach your goals in a way that suits you best.
+Our platform is not only about workouts. We believe that true fitness comes from a
+balance between exercise, nutrition, and a healthy mindset. That is why Fit Orbit also
+includes helpful nutrition advice, wellness tips, and easy progress tracking features.
+You can check your daily improvements, see how far you have come, and stay
+motivated to continue your journey.
+One of the best parts of Fit Orbit is its supportive online community. You can connect
+with trainers, nutrition experts, and other users who share the same goals. Our certified
+professionals are always ready to guide you, answer your questions, and provide
+feedback on your progress. This friendly and encouraging environment makes it easier
+to stay on track and enjoy the process.
+We understand that everyone has a different routine and lifestyle. Some people prefer
+working out at home, while others enjoy going to the gym. Fit Orbit allows you to train 
+
+
+3
+anywhere, anytime. You can access your personalized workouts, and get expert advice
+right from your phone or computer. It is like having your own personal trainer and
+nutritionist with you at all times.
+At Fit Orbit, our mission is simple: to help you become a healthier, stronger, and
+happier version of yourself. We want to make fitness a part of your daily life, not a
+burden or a short-term goal. By making workouts fun, personalized, and easy to follow,
+we ensure that you stay consistent and see real results.
+No matter where you are starting from, Fit Orbit gives you everything you need to
+improve your fitness and well-being. Join us today and take the first step toward a
+better, more active life. With Fit Orbit, your health journey begins right here, right now.
+1.3 Project Objective
+1.3.1 Connect Users with Experts
+Provide a platform where individuals can easily interact with certified personal trainers
+and nutritionists to achieve their fitness and health goals.
+1.3.2 Offer Personalized Guidance
+Enable trainers and nutritionists to deliver tailored workout plans, diet charts, and
+lifestyle advice based on each user’s requirements.
+1.3.3 Facilitate Real-Time Communication
+Implement chat and messaging features to allow seamless communication between
+users and professionals.
+1.3.4 Support Goal Tracking
+Allow users to track their progress (weight, body measurements, workout logs, diet
+compliance) and share updates with their assigned trainers/nutritionists.
+1.3.5 Build a Professional Marketplace
+Create a space where certified trainers and nutritionists can showcase their expertise,
+services, and achievements, making it easier for users to choose the right expert.
+1.3.6 Ensure Accessibility and Convenience
+Provide users with on-demand access to fitness and nutrition guidance anytime,
+anywhere, eliminating geographical limitations.
+
+
+4
+1.3.7 Promote Healthy Lifestyle Adoption
+Encourage users to develop sustainable habits through continuous expert support and
+accountability.
+1.4 Project Scope
+The scope of this project is to design and develop an online fitness platform that helps
+people connect with certified personal trainers and nutritionists to achieve their health
+and wellness goals. The platform will allow users to create their own accounts, set
+fitness goals, and maintain personal profiles. Trainers and nutritionists will also have
+their own professional profiles where they can display their qualifications,
+certifications, and services.
+Through this platform, users will be able to communicate directly with experts using
+messaging and live chat features for personalized fitness and nutrition guidance.
+Trainers and nutritionists can create and share customized workout routines, diet plans,
+and progress recommendations that match each user’s specific goals and needs.
+The system will also include progress tracking tools that allow users to record their
+workouts, monitor their eating habits, and track body measurements over time. This
+will help them see their improvement and stay motivated throughout their fitness
+journey.
+In addition, the platform will provide a scheduling and appointment system where users
+can book sessions with trainers or nutritionists based on their availability. Trainers can
+also manage their schedules easily through this feature.
+Fit Orbit will be a web-based platform accessible from desktops, tablets, and mobile
+phones, making it easy for users to stay connected and active from anywhere. To ensure
+user safety, strong authentication methods and data protection measures will be applied
+to keep personal and health information secure.
+Overall, the project aims to create a complete, reliable, and user-friendly online fitness
+environment where people can get expert guidance, track their progress, and work
+toward a healthier lifestyle in a safe and convenient way.
+
+
+Chapter 2
+Overall Description
+
+
+6
+2. Overall Description
+2.1 Project Perspective
+This project is envisioned as a web-based fitness and wellness platform that functions
+as a bridge between individuals and certified health professionals. Unlike traditional
+fitness applications that provide generic workout routines or diet plans, this system
+emphasizes direct human interaction by enabling users to connect with personal trainers
+and nutritionists in real time. It positions itself as both a service platform and a
+professional marketplace, where experts can deliver personalized guidance, manage
+client progress, and build their reputation, while users gain reliable, expert-driven
+support for achieving their fitness goals. The platform is designed with scalability in
+mind, allowing future integration of advanced technologies such as AI-driven coaching,
+wearable device syncing, and progress analytics. Overall, the project is intended to
+provide a comprehensive, accessible, and user-centered solution for modern fitness and
+nutrition needs.
+2.2 Project Features
+2.2.1 User Profiles
+Users can create personalized profiles where they can set their fitness goals, update
+personal details, and manage their progress history. Trainers and nutritionists also have
+professional profiles displaying their expertise, certifications, and services.
+2.2.2 Expert Connectivity
+The platform allows users to directly connect and communicate with certified trainers
+and nutritionists through an integrated chat system. This helps users receive real-time
+guidance, advice, and feedback.
+2.2.3 Personalized Workout and Diet Plans
+Trainers and nutritionists can design and share customized workout routines and diet
+charts based on individual user needs, fitness levels, and goals. This ensures every plan
+is tailored for maximum effectiveness.
+2.2.4 Activity Logging and Progress Tracking
+
+
+7
+Users can log their daily workouts, record dietary habits, and track key body
+measurements over time. These tools help users monitor their development and stay
+motivated throughout their fitness journey.
+2.2.5 Scheduling and Appointments
+A built-in scheduling system allows users to book sessions with their trainers or
+nutritionists according to availability. Trainers can also manage their calendars and
+appointments easily through this system.
+2.2.6 Progress Indicators
+Both users and experts have access to progress dashboards that display performance
+data, progress graphs, and milestone achievements. This visual feedback encourages
+consistency and accountability.
+2.2.7 Security and Privacy
+The platform uses a secure login system and strong data protection methods to ensure
+that all personal and health-related information remains private and safe. Users can
+access their accounts confidently, knowing their data is secure.
+2.3 Operating Environment
+The online fitness platform will operate in a web-based environment, making it
+accessible to users through standard web browsers such as Google Chrome, Mozilla
+Firefox, Microsoft Edge, and Safari. It is designed to run smoothly across multiple
+devices, including desktops, laptops, tablets, and smartphones, ensuring a responsive
+and consistent user experience. The backend of the system will be hosted on a secure
+cloud server, providing scalability, reliability, and high availability. The platform
+requires a stable internet connection to enable real-time communication between users
+and experts via chat. For users, the minimum requirements include a device with basic
+processing capabilities, at least 2 GB of RAM, and an updated browser. On the server
+side, the system will operate on a modern operating environment such as Linux or
+Windows Server with support for database management systems (e.g., MySQL or
+MongoDB) and a robust application framework (e.g., Node.js, Express). Security
+measures, including SSL encryption and secure authentication protocols, will ensure
+safe data transmission and storage.
+2.4 Assumptions and Dependencies
+
+
+8
+Assumptions
+ Users will have access to a stable internet connection to interact with trainers
+and nutritionists via chat sessions.
+ Trainers and nutritionists using the platform are certified professionals capable
+of delivering reliable guidance.
+ Users will access the platform primarily through modern browsers and standard
+devices such as smartphones, tablets, or laptops.
+Dependencies
+ Reliable cloud hosting service for data storage, availability, and scalability.
+ Third-party APIs for payment processing (if integrated).
+ Database management systems for storing user data, expert profiles, and
+progress records.
+ Continuous technical support and maintenance for bug fixing, updates, and
+feature enhancements.
+ Compliance with legal and regulatory standards related to data privacy and
+online health services.
+
+
+Chapter 3
+System Features
+
+
+10
+3. System features
+3.1 Functional Requirements
+3.1.1 User Management
+ The system shall allow users to register securely.
+ The system shall allow users to log in securely.
+ The system shall allow users to create personal profiles.
+ The system shall allow users to update personal profiles.
+ The system shall allow users (clients) to set their fitness goals.
+ The system shall allow users (clients) to track their progress.
+ The system shall allow users (trainers) to create professional profiles showing
+their qualifications, experience, and services.
+ The system shall allow users (nutritionists) to create professional profiles
+showing their qualifications, experience, and services.
+3.1.2 Expert Connectivity
+ The system shall provide a built-in chat feature to enable real-time
+communication between clients and trainers.
+ The system shall provide a built-in chat feature to enable real-time
+communication between clients and nutritionists.
+ The system shall allow clients to send messages and share progress updates
+through the chat interface.
+ The system shall allow clients to receive feedback from trainers and
+nutritionists.
+ The system shall notify clients of new messages or expert responses.
+3.1.3 Security and Privacy
+ The system shall require secure login using encrypted credentials for all users.
+ The system shall store client and expert data in a secure database with
+restricted access.
+ The system shall ensure that only authorized users can view or modify
+sensitive data.
+3.1.4 System Administration
+
+
+11
+ The system shall allow the admin to manage all users, including clients,
+trainers, and nutritionists.
+ The system shall allow the admin to monitor system activity and ensure
+compliance with data protection policies.
+3.2 Non-Functional Requirements
+3.2.1 Performance Requirements
+ The system should respond to user actions (e.g., loading pages, sending
+messages) within 3 seconds under normal network conditions.
+ The chat module should deliver messages in real time with minimal latency.
+ The platform should support at least 500 concurrent users without noticeable
+performance degradation.
+3.2.2 Reliability and Availability
+ The system should maintain 99.9% uptime through a reliable cloud hosting
+service.
+ All user data should be regularly backed up to prevent data loss.
+ The system should recover automatically in case of a server failure or network
+issue.
+3.2.3 Security Requirements
+ The system must use SSL encryption for all communications.
+ Passwords must be stored using hashing and salting techniques.
+ User sessions should automatically expire after a period of inactivity.
+ The platform must comply with relevant data privacy regulations (e.g.,
+GDPR).
+3.2.4 Usability Requirements
+ The interface should be intuitive, responsive, and easy to navigate on desktop
+and mobile devices.
+ Users should be able to complete key tasks (e.g., logging activity) within 3–5
+clicks.
+
+
+12
+ The UI should use consistent colors, icons, and typography to enhance user
+experience.
+3.2.5 Scalability
+ The system architecture should support horizontal scaling to accommodate
+more users or experts as the platform grows.
+ The database should be optimized for handling large datasets (user history,
+chat logs, etc.).
+3.2.6 Maintainability
+ The code base should follow modular design principles, allowing easy updates
+and bug fixes.
+ Proper documentation should be maintained for developers and administrators.
+ Regular maintenance checks and updates should be scheduled.
+3.2.7 Portability
+ The web application should be compatible with major browsers (Chrome,
+Firefox, Edge and Safari).
+ The platform should be accessible across devices (desktop, tablet, smartphone)
+with a responsive layout.
+3.2.8 Privacy and Data Integrity
+ User personal data must be stored and transmitted securely.
+ Data should not be shared with third parties without explicit user consent.
+ The system should verify data input accuracy before storage to prevent
+inconsistencies.
+
+
+Chapter 4
+External Interfaces Requirements
+
+
+14
+4. External Interface Requirements
+4.1 User Interfaces
+The system shall provide a web-based user interface accessible through modern web
+browsers such as Google Chrome, Mozilla Firefox, and Microsoft Edge. The user
+interface shall support multiple user roles including clients, trainers, nutritionists, and
+administrators.
+The client interface shall allow users to register, log in, manage personal profiles, set
+fitness goals, track progress, and view assigned workout and diet plans. Clients shall
+also be able to communicate with trainers and nutritionists through the system interface.
+The trainer interface shall enable trainers to create, update, and assign workout plans to
+clients. Trainers shall be able to view client progress reports, manage professional
+profiles, and communicate with assigned clients using the system.
+The nutritionist interface shall allow nutritionists to create and manage diet plans, view
+client fitness and dietary information, and maintain professional profile details.
+The administrator interface shall provide an administrative dashboard to manage users,
+monitor system activity, approve or deactivate accounts, and maintain overall system
+configuration.
+The user interface shall be intuitive, consistent, and responsive, ensuring usability
+across desktop computers, laptops, tablets, and smartphones.
+4.2 Communication Interfaces
+The system shall use the Hypertext Transfer Protocol Secure (HTTPS) to ensure secure
+communication between the client and server components. All data transmitted
+between the system and external entities shall be encrypted to maintain confidentiality
+and integrity.
+The system shall use RESTful application programming interfaces (APIs) to facilitate
+communication between internal modules and external services. Data exchanged
+through these interfaces shall be formatted using JavaScript Object Notation (JSON).
+The system may support real-time communication using Web Socket technology to
+enable instant messaging and notifications between clients, trainers, and nutritionists.
+
+
+15
+The system shall support standard internet communication protocols and shall be
+designed to operate reliably under typical network conditions.
+
+
+Chapter 5
+Analysis models
+
+
+17
+5. Analysis Models
+5.1 Context Diagram of FitOrbit system
+Fig 5.1: Context Diagram of “FitOrbit” system.
+Description:
+The context diagram provides a high-level view of the system and shows how it
+interacts with external entities such as users and experts. It represents the entire
+application as a single process without internal details. The diagram highlights data
+flow between the system and external components like user inputs, expert responses,
+and chat messages. It helps in understanding system boundaries and identifying major
+data exchanges. This diagram is useful for explaining overall system functionality to
+stakeholders in a simple and clear manner.
+
+
+18
+5.2 Use case Diagram of FitOrbit System
+Fig 5.1: Use case Diagram of “FitOrbit” system.
+Description:
+The use case diagram illustrates the functional requirements of the system by showing
+the interactions between users and the system. It identifies the main actors and the
+actions (use cases) they can perform within the system. This diagram helps in
+understanding the system’s behavior from the user’s perspective. It also provides a clear
+overview of system functionality and user responsibilities.
+
+
+19
+5.3 Activity Diagram of FitOrbit system
+Fig 5.3: Activity Diagram of whole “FitOrbit” system.
+Description:
+The activity diagram represents the flow of actions and decision points involved in the
+system’s processes. It helps in understanding the sequence and logic of operations from
+start to end.
+
+
+20
+5.4 ER Diagram of FitOrbit system
+Fig 5.4: ER Diagram of whole “FitOrbit” system.
+Description:
+The ER diagram represents the database structure of the fitness management system by
+illustrating entities such as User, Expert Profile, Client Profile, Workout Plan, Diet
+Plan, and Notifications. It shows how users interact with workout and diet plans created
+by experts. Relationships define how exercises are included in workout plans and diet
+details are linked to diet plans. The diagram also captures user profiles, health attributes,
+and communication through notifications. Overall, it ensures proper data organization
+and relationships for efficient system functionality.
+
+
+21
+5.5 Class Diagram of FitOrbit system
+Fig 5.5: Class Diagram of whole “FitOrbit” system.
+Description:
+The class diagram represents the static structure of the system by showing classes, their
+attributes, and relationships. It defines how different system components are organized
+and interact with each other. This diagram helps in understanding the system design
+and object-oriented structure.
+
+
+22
+5.6 Object Diagram of FitOrbit System
+Fig 5.6: Object Diagram of whole “FitOrbit” system.
+Description:
+The object diagram represents a snapshot of the system at a specific moment in time by
+showing instances of classes and their attribute values. It illustrates how objects are
+linked to each other during system execution. This diagram helps in understanding real
+data flow and object interactions. It also validates the correctness of the class diagram.
+Overall, it provides a clear view of runtime relationships between objects.
+
+
+23
+5.7 Sequence Diagram of FitOrbit system
+Fig 5.7: Sequence Diagram of whole “FitOrbit” system.
+Description:
+The sequence diagram illustrates how different modules and users in the project interact
+with each other over time. It shows the flow of messages and the order of operations to
+complete a specific task.
+
+
+Chapter 6
+WBS Project Management
+
+
+25
+6. WBS Project Management
+6.1 WBS Modules of FitOrbit system
+Fig 6.1: WBS module of whole FitOrbit system.
+Description:
+The Work Breakdown Structure (WBS) divides the entire project into manageable
+modules and tasks. It organizes work hierarchically, starting from major system
+modules down to detailed activities. The WBS helps in clear task allocation,
+scheduling, and progress tracking. It ensures that all project requirements are covered
+without overlap. This structure improves project planning, control, and successful
+execution.
+
+
+Chapter 7
+Tools & Technologies
+
+
+27
+7. Tools & Technologies
+7.1 Programming Languages
+The project is developed using HTML for structuring web content and CSS for
+designing a responsive user interface. JavaScript is the primary programming
+language used throughout the application. React.js is used to build interactive and
+component-based frontend interfaces. Node.js and Express.js use JavaScript to handle
+backend logic and API development. This combination enables efficient full-stack
+web application development.
+7.2 Databases/Data storages
+MongoDB is used as the primary database for storing application data. It is a NoSQL
+database that stores data in a flexible, document-oriented format. MongoDB allows
+efficient handling of dynamic and unstructured data. It supports fast read and write
+operations. The database integrates seamlessly with the MERN stack for scalable data
+management.
+7.3 Operating System
+The application is developed and tested on the Windows operating system. Windows
+provides a stable environment for running development tools and servers. It supports
+required software such as Node.js, MongoDB, and modern web browsers. The
+operating system ensures smooth development and deployment processes. It also offers
+compatibility with various development frameworks and tools
+
+
+
+3. System features
+3.1 Functional Requirements
+3.1.1 User Management
+ The system shall allow users to register securely.
+ The system shall allow users to log in securely.
+ The system shall allow users to create personal profiles.
+ The system shall allow users to update personal profiles.
+ The system shall allow users (clients) to set their fitness goals.
+ The system shall allow users (clients) to track their progress.
+ The system shall allow users (trainers) to create professional profiles showing 
+their qualifications, experience, and services.
+ The system shall allow users (nutritionists) to create professional profiles 
+showing their qualifications, experience, and services.
+3.1.2 Expert Connectivity
+ The system shall provide a built-in chat feature to enable real-time 
+communication between clients and trainers.
+ The system shall provide a built-in chat feature to enable real-time 
+communication between clients and nutritionists.
+ The system shall allow clients to send messages and share progress updates 
+through the chat interface.
+ The system shall allow clients to receive feedback from trainers and 
+nutritionists.
+ The system shall notify clients of new messages or expert responses.
+3.1.3 Security and Privacy
+ The system shall require secure login using encrypted credentials for all users.
+ The system shall store client and expert data in a secure database with 
+restricted access.
+ The system shall ensure that only authorized users can view or modify 
+sensitive data.
+3.1.4 System Administration10
+ The system shall allow the admin to manage all users, including clients, 
+trainers, and nutritionists.
+ The system shall allow the admin to monitor system activity and ensure 
+compliance with data protection policies.
