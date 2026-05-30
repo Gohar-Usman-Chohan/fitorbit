@@ -27,6 +27,7 @@ import {
 import { toast } from 'sonner';
 import { DIET_TYPE_OPTIONS, DIET_TYPES, MEAL_TYPE_OPTIONS, MEAL_TYPES } from '@/config/constants';
 import { validateDietPlanCreate, validateMeals } from '@/lib/validation';
+import { todayDateInputValue } from '@/lib/dateFormat';
 
 type MealRow = {
   mealName: string;
@@ -42,7 +43,7 @@ const emptyMeal = (): MealRow => ({
   portions: '',
 });
 
-const emptyForm = {
+const createEmptyForm = () => ({
   clientId: '',
   title: '',
   description: '',
@@ -50,12 +51,12 @@ const emptyForm = {
   duration: '12',
   calorieTarget: '2000',
   mealsPerDay: '3',
-  startDate: new Date().toISOString().slice(0, 10),
+  startDate: todayDateInputValue(),
   protein: '30',
   carbs: '40',
   fats: '30',
   meals: [emptyMeal()],
-};
+});
 
 function normalizeMeals(meals: MealRow[]) {
   return meals
@@ -197,7 +198,7 @@ export default function DietPlans() {
   const [clients, setClients] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [formData, setFormData] = useState(emptyForm);
+  const [formData, setFormData] = useState(createEmptyForm);
   const [isSaving, setIsSaving] = useState(false);
   const [editingPlan, setEditingPlan] = useState<{ id: string; title: string; mealCount: number } | null>(null);
   const [editingMeals, setEditingMeals] = useState<MealRow[]>([]);
@@ -247,7 +248,12 @@ export default function DietPlans() {
 
   const closeCreateModal = () => {
     setShowCreateModal(false);
-    setFormData(emptyForm);
+    setFormData(createEmptyForm());
+  };
+
+  const openCreateModal = () => {
+    setFormData(createEmptyForm());
+    setShowCreateModal(true);
   };
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -368,7 +374,7 @@ export default function DietPlans() {
       description="Design nutrition programs with meals, macros, and calorie targets for your clients."
       accent="green"
       createLabel="Create New Plan"
-      onCreate={() => setShowCreateModal(true)}
+      onCreate={openCreateModal}
       stats={summaryStats}
     >
       <FormModal
@@ -483,6 +489,7 @@ export default function DietPlans() {
               <label className={modalLabelClass}>Start date</label>
               <input
                 type="date"
+                min={todayDateInputValue()}
                 value={formData.startDate}
                 onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
                 className={modalFieldClass}
@@ -646,7 +653,7 @@ export default function DietPlans() {
           title="No diet plans yet"
           description="Create your first nutrition plan with meals and macro targets for a client."
           actionLabel="Create your first plan"
-          onAction={() => setShowCreateModal(true)}
+          onAction={openCreateModal}
         />
       )}
     </PlansPageShell>

@@ -6,6 +6,13 @@ export function parseApiData<T = Record<string, unknown>>(
   return (body?.data ?? body) as T;
 }
 
+/** Normalize user profile from GET/PUT /users/profile (or role profile aliases). */
+export function parseUserProfileResponse(response: { data?: unknown }) {
+  const payload = parseApiData<Record<string, unknown>>(response);
+  const user = (payload?.user ?? payload) as Record<string, unknown>;
+  return user;
+}
+
 export function mapExpert(raw: any, type: 'trainer' | 'nutritionist') {
   const profile = raw?.profile || {};
   return {

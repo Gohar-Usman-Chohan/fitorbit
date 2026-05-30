@@ -128,11 +128,24 @@ const validateBookingRequest = (appointmentDate, durationMinutes, existingAppoin
   return { valid: true };
 };
 
+const parseAppointmentDateTime = (appointmentDate, appointmentTime) => {
+  if (
+    appointmentTime &&
+    typeof appointmentDate === 'string' &&
+    /^\d{4}-\d{2}-\d{2}$/.test(appointmentDate)
+  ) {
+    return buildLocalDateTime(appointmentDate, appointmentTime);
+  }
+
+  return new Date(appointmentDate);
+};
+
 module.exports = {
   BOOKING_WINDOW,
   BOOKING_WINDOW_LABEL,
   BLOCKING_STATUSES,
   buildLocalDateTime,
+  parseAppointmentDateTime,
   generateAvailableSlots,
   validateBookingRequest,
   hasSchedulingConflict,

@@ -27,6 +27,7 @@ import {
 import { toast } from 'sonner';
 import { FITNESS_GOAL_OPTIONS, WORKOUT_TYPES, WORKOUT_FREQUENCY } from '@/config/constants';
 import { validateExercises, validateWorkoutPlanCreate } from '@/lib/validation';
+import { todayDateInputValue } from '@/lib/dateFormat';
 
 type ExerciseRow = {
   exerciseName: string;
@@ -36,7 +37,7 @@ type ExerciseRow = {
 
 const emptyExercise = (): ExerciseRow => ({ exerciseName: '', sets: 3, reps: 10 });
 
-const emptyForm = {
+const createEmptyForm = () => ({
   clientId: '',
   title: '',
   description: '',
@@ -45,9 +46,9 @@ const emptyForm = {
   duration: '4',
   difficultyLevel: 'beginner',
   frequency: '3',
-  startDate: new Date().toISOString().slice(0, 10),
+  startDate: todayDateInputValue(),
   exercises: [emptyExercise()],
-};
+});
 
 function normalizeExercises(exercises: ExerciseRow[]): ExerciseRow[] {
   return exercises
@@ -175,7 +176,7 @@ export default function WorkoutPlans() {
   const [clients, setClients] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [formData, setFormData] = useState(emptyForm);
+  const [formData, setFormData] = useState(createEmptyForm);
   const [isSaving, setIsSaving] = useState(false);
   const [editingPlan, setEditingPlan] = useState<{ id: string; title: string; exerciseCount: number } | null>(null);
   const [editingExercises, setEditingExercises] = useState<ExerciseRow[]>([]);
@@ -224,7 +225,12 @@ export default function WorkoutPlans() {
 
   const closeCreateModal = () => {
     setShowCreateModal(false);
-    setFormData(emptyForm);
+    setFormData(createEmptyForm());
+  };
+
+  const openCreateModal = () => {
+    setFormData(createEmptyForm());
+    setShowCreateModal(true);
   };
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -337,7 +343,7 @@ export default function WorkoutPlans() {
       description="Create, assign, and manage personalized workout programs for your clients."
       accent="blue"
       createLabel="Create New Plan"
-      onCreate={() => setShowCreateModal(true)}
+      onCreate={openCreateModal}
       stats={summaryStats}
     >
       <FormModal
@@ -459,6 +465,7 @@ export default function WorkoutPlans() {
               <label className={modalLabelClass}>Start date</label>
               <input
                 type="date"
+                min={todayDateInputValue()}
                 value={formData.startDate}
                 onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
                 className={modalFieldClass}
@@ -599,7 +606,7 @@ export default function WorkoutPlans() {
           title="No workout plans yet"
           description="Start by creating a tailored program with exercises for one of your clients."
           actionLabel="Create your first plan"
-          onAction={() => setShowCreateModal(true)}
+          onAction={openCreateModal}
         />
       )}
     </PlansPageShell>

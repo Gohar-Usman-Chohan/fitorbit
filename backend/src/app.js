@@ -35,16 +35,46 @@ const { validationErrorHandler } = require('./middleware/validation');
 
 const app = express();
 
+function buildAllowedOrigins() {
+  return new Set(
+    [
+      env.FRONTEND_URL,
+      env.CORS_ORIGIN,
+      ...(process.env.CORS_ORIGINS || '').split(','),
+      'http://localhost:3000',
+    ]
+      .map((value) => value?.trim())
+      .filter(Boolean)
+  );
+}
+
+const allowedOrigins = buildAllowedOrigins();
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+  if (allowedOrigins.has(origin)) return true;
+  return /^https:\/\/[\w.-]+\.vercel\.app$/.test(origin);
+}
+
 // ============================================
 // SECURITY MIDDLEWARE
 // ============================================
 app.use(helmet()); // Set security HTTP headers
-app.use(cors({
-  origin: env.FRONTEND_URL,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (isAllowedOrigin(origin)) {
+        callback(null, true);
+        return;
+      }
+      console.warn('CORS blocked origin:', origin);
+      callback(null, false);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 
 // ============================================
 // BODY PARSER MIDDLEWARE
@@ -53,9 +83,20 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // ============================================
-// DATABASE CONNECTION
+// DATABASE CONNECTION (serverless-safe)
 // ============================================
-connectDB();
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error('Database unavailable:', error.message);
+    res.status(503).json({
+      success: false,
+      message: 'Database unavailable. Verify MONGODB_URI is set on the server.',
+    });
+  }
+});
 
 // ============================================
 // API ROUTES
@@ -75,8 +116,17 @@ app.use('/api/notifications', notificationRoutes); // Notification routes
 app.use('/api/admin', adminRoutes);         // Admin management routes
 
 // ============================================
-// HEALTH CHECK ENDPOINT
+// ROOT + HEALTH CHECK
 // ============================================
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'FitOrbit API is running',
+    health: '/api/health',
+    docs: 'Use /api/* routes from the frontend app',
+  });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 

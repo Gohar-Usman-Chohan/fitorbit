@@ -1,4 +1,5 @@
 import { FITNESS_GOAL_OPTIONS, WORKOUT_FREQUENCY } from '@/config/constants';
+import { isPastDateInputValue } from '@/lib/dateFormat';
 
 /** Shared field limits — keep in sync with backend/src/utils/validators.js */
 export const LIMITS = {
@@ -251,6 +252,7 @@ export function validateWorkoutPlanCreate(data: {
   }
 
   if (!trim(data.startDate)) return 'Start date is required';
+  if (isPastDateInputValue(data.startDate)) return 'Start date cannot be in the past';
 
   return validateExercises(data.exercises);
 }
@@ -367,6 +369,7 @@ export function validateDietPlanCreate(data: {
   }
 
   if (!trim(data.startDate)) return 'Start date is required';
+  if (isPastDateInputValue(data.startDate)) return 'Start date cannot be in the past';
 
   return validateMeals(data.meals);
 }

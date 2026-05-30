@@ -25,7 +25,12 @@ export default function AboutPage() {
   useEffect(() => {
     authAPI
       .getPlatformStats()
-      .then((response) => setStats(response.data.data))
+      .then((response) => {
+        const data = response.data?.data;
+        if (data && typeof data === 'object') {
+          setStats((prev) => ({ ...prev, ...data }));
+        }
+      })
       .catch(() => {});
   }, []);
 

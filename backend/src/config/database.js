@@ -2,39 +2,51 @@
  * ============================================
  * DATABASE CONFIGURATION
  * ============================================
- * MongoDB connection setup using Mongoose
+ * MongoDB connection with serverless-friendly caching (Vercel).
  */
 
 const mongoose = require('mongoose');
 const seedAdminUser = require('../utils/seedAdminUser');
 
+let seedPromise = null;
+
 const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) {
+    return mongoose.connection;
+  }
+
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    throw new Error('MONGODB_URI is not defined');
+  }
+
   try {
-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/fitorbit';
-    
-    const options = {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-    };
+    await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 15000,
+      maxPoolSize: 10,
+    });
 
-    await mongoose.connect(uri, options);
-    
     console.log('✅ MongoDB connected successfully');
-    const dbName = uri.split('/').pop().split('?')[0];
-    console.log(`📊 Database: ${dbName}`);
+    const dbName = uri.split('/').pop()?.split('?')[0];
+    if (dbName) {
+      console.log(`📊 Database: ${dbName}`);
+    }
 
-    await seedAdminUser();
-    
+    if (!seedPromise) {
+      seedPromise = seedAdminUser().catch((error) => {
+        seedPromise = null;
+        console.error('Admin seed failed:', error.message);
+      });
+    }
+    await seedPromise;
+
     return mongoose.connection;
   } catch (error) {
     console.error('❌ Database connection failed:', error.message);
-    process.exit(1);
+    throw error;
   }
 };
 
-// Handle connection events
 mongoose.connection.on('disconnected', () => {
   console.log('⚠️  Database disconnected');
 });

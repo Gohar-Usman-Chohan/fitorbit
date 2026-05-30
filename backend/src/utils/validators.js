@@ -57,6 +57,22 @@ const FITNESS_GOAL_VALUES = Object.values(FITNESS_GOALS);
 
 const trim = (value) => (typeof value === 'string' ? value.trim() : '');
 
+const assertStartDateNotPast = (value) => {
+  const dateStr = trim(value);
+  if (!dateStr) {
+    throw new AppError('Start date is required', 400);
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const start = new Date(`${dateStr}T12:00:00`);
+  start.setHours(0, 0, 0, 0);
+
+  if (start < today) {
+    throw new AppError('Start date cannot be in the past', 400);
+  }
+};
+
 const parseOptionalNumber = (value) => {
   if (value === '' || value === null || value === undefined) return null;
   const parsed = Number(value);
@@ -148,9 +164,7 @@ const validateWorkoutPlanInput = (body) => {
     );
   }
 
-  if (!trim(body.startDate)) {
-    throw new AppError('Start date is required', 400);
-  }
+  assertStartDateNotPast(body.startDate);
 
   if (!Object.values(WORKOUT_TYPES).includes(body.workoutType)) {
     throw new AppError('Invalid workout type', 400);
@@ -213,9 +227,7 @@ const validateDietPlanInput = (body) => {
     throw new AppError(`Macro percentages must add up to 100% (currently ${macroSum}%)`, 400);
   }
 
-  if (!trim(body.startDate)) {
-    throw new AppError('Start date is required', 400);
-  }
+  assertStartDateNotPast(body.startDate);
 
   if (!Object.values(DIET_TYPES).includes(body.dietType)) {
     throw new AppError('Invalid diet type', 400);

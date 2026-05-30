@@ -1,7 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
-import { forceLogout, isAccountInactiveError } from '@/lib/forceLogout';
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -35,18 +34,6 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    const status = error.response?.status;
-    const message = error.response?.data?.message;
-    const code = error.response?.data?.code;
-
-    if (isAccountInactiveError(status, message, code)) {
-      if (code === 'email_not_verified') {
-        forceLogout('Please verify your email before signing in.');
-      } else {
-        forceLogout(message || 'account_inactive');
-      }
-      return Promise.reject(error);
-    }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
@@ -57,7 +44,7 @@ axiosInstance.interceptors.response.use(
           // Clear tokens and redirect to login
           Cookies.remove('token');
           Cookies.remove('refreshToken');
-          window.location.href = '/login';
+          window.location.href = '/auth/login';
           return Promise.reject(error);
         }
 
@@ -87,7 +74,7 @@ axiosInstance.interceptors.response.use(
       } catch (err) {
         Cookies.remove('token');
         Cookies.remove('refreshToken');
-        window.location.href = '/login';
+        window.location.href = '/auth/login';
         return Promise.reject(err);
       }
     }
@@ -95,28 +82,6 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-/** Normalize profile payloads from GET/PUT /users/profile */
-export function parseUserProfileResponse(response: { data?: unknown }) {
-  const body = (response?.data ?? response) as Record<string, unknown>;
-  const payload = (body?.data ?? body) as Record<string, unknown>;
-
-  if (!payload || typeof payload !== 'object') {
-    return null;
-  }
-
-  const nestedUser = payload.user;
-  if (nestedUser && typeof nestedUser === 'object') {
-    return { ...(nestedUser as Record<string, unknown>) };
-  }
-
-  if (payload.email || payload.firstName || payload.id) {
-    const { clientProfile, user, ...profileFields } = payload;
-    return profileFields;
-  }
-
-  return null;
-}
 
 // ============================================
 // AUTH APIs
@@ -133,7 +98,7 @@ export const authAPI = {
     // Split name into firstName and lastName
     const nameParts = data.name.trim().split(' ');
     const firstName = nameParts[0];
-    const lastName = nameParts.slice(1).join(' ') || firstName;
+    const lastName = nameParts.slice(1).join(' ') || '';
 
     return axiosInstance.post('/auth/register', {
       firstName,
@@ -155,14 +120,13 @@ export const authAPI = {
   forgotPassword: (email: string) =>
     axiosInstance.post('/auth/forgot-password', { email }),
 
-  resetPassword: (token: string, newPassword: string) =>
-    axiosInstance.post(`/auth/reset-password/${token}`, {
-      password: newPassword,
-      confirmPassword: newPassword,
+  resetPassword: (token: string, password: string) =>
+    axiosInstance.post(`/auth/reset-password/${encodeURIComponent(token)}`, {
+      password,
     }),
 
   verifyEmail: (token: string) =>
-    axiosInstance.get(`/auth/verify-email/${token}`),
+    axiosInstance.get(`/auth/verify-email/${encodeURIComponent(token)}`),
 
   resendVerification: (email: string) =>
     axiosInstance.post('/auth/resend-verification', { email }),
@@ -202,9 +166,10 @@ export const clientAPI = {
   getDashboard: () => axiosInstance.get('/clients/dashboard'),
 
   // Get client profile
-  getProfile: () => axiosInstance.get('/users/profile'),
-  updateProfile: (data: any) => axiosInstance.put('/users/profile', data),
-  getPlans: () => axiosInstance.get('/clients/plans'),
+  getProfile: () => axiosInstance.get('/clients/profile'),
+
+  // Create/update client profile
+  updateProfile: (data: any) => axiosInstance.put('/clients/profile', data),
 
   // Get fitness goals
   getFitnessGoals: () => axiosInstance.get('/clients/fitness-goals'),
@@ -221,8 +186,11 @@ export const clientAPI = {
   deleteFitnessGoal: (goalId: string) =>
     axiosInstance.delete(`/clients/fitness-goals/${goalId}`),
 
-  // Get assigned plans
-  getAssignedPlans: () => axiosInstance.get('/clients/assigned-plans'),
+  // Get assigned workout + diet plans
+  getPlans: () => axiosInstance.get('/clients/plans'),
+
+  // Alias used by some pages
+  getAssignedPlans: () => axiosInstance.get('/clients/plans'),
 
   // Get progress summary
   getProgressSummary: () => axiosInstance.get('/clients/progress-summary'),
@@ -232,7 +200,7 @@ export const clientAPI = {
 
   // Get upcoming appointments
   getUpcomingAppointments: () =>
-    axiosInstance.get('/appointments', { params: { status: 'scheduled' } }),
+    axiosInstance.get('/clients/upcoming-appointments'),
 
   // Get recent progress
   getRecentProgress: () => axiosInstance.get('/clients/recent-progress'),
@@ -253,7 +221,7 @@ export const clientAPI = {
   bookNutritionist: (nutritionistId: string, data: any) =>
     axiosInstance.post(`/clients/book-nutritionist/${nutritionistId}`, data),
 
-  // Assigned trainer & nutritionist (for chat, dashboard, etc.)
+  // Get assigned trainer/nutritionist for chat
   getAssignedExperts: () => axiosInstance.get('/clients/experts'),
 };
 
@@ -272,27 +240,32 @@ export const trainerAPI = {
   // Create/update trainer profile
   updateProfile: (data: any) => axiosInstance.put('/trainers/profile', data),
 
-  // Get trainer clients (scope: contact | assignable)
-  getClients: (params?: { scope?: 'contact' | 'assignable'; limit?: number; skip?: number }) =>
+  // Get trainer clients
+  getClients: (params?: { scope?: string; limit?: number; search?: string }) =>
     axiosInstance.get('/trainers/clients', { params }),
 
   // Get client details
   getClientDetails: (clientId: string) =>
     axiosInstance.get(`/trainers/clients/${clientId}`),
 
-  // Get trainer dashboard
-  getDashboard: () => axiosInstance.get('/trainers/dashboard'),
+  // Workout plans (trainer-assigned)
+  getWorkouts: (params?: { limit?: number; skip?: number; status?: string }) =>
+    axiosInstance.get('/trainers/workouts', { params }),
 
-  // Workout plans
-  getWorkouts: (params?: any) => axiosInstance.get('/trainers/workouts', { params }),
+  createWorkout: (data: Record<string, unknown>) =>
+    axiosInstance.post('/trainers/workouts', data),
 
-  createWorkout: (data: any) => axiosInstance.post('/trainers/workouts', data),
-
-  updateWorkout: (workoutId: string, data: any) =>
+  updateWorkout: (workoutId: string, data: Record<string, unknown>) =>
     axiosInstance.put(`/trainers/workouts/${workoutId}`, data),
 
   deleteWorkout: (workoutId: string) =>
     axiosInstance.delete(`/trainers/workouts/${workoutId}`),
+
+  getWorkoutDetails: (workoutId: string) =>
+    axiosInstance.get(`/trainers/workouts/${workoutId}/details`),
+
+  // Get trainer dashboard
+  getDashboard: () => axiosInstance.get('/trainers/dashboard'),
 
   // Get trainer schedule
   getSchedule: (params?: any) =>
@@ -326,55 +299,46 @@ export const nutritionistAPI = {
   // Create/update nutritionist profile
   updateProfile: (data: any) => axiosInstance.put('/nutritionists/profile', data),
 
-  // Get nutritionist clients (scope: contact | assignable)
-  getClients: (params?: { scope?: 'contact' | 'assignable'; limit?: number; skip?: number }) =>
+  // Get nutritionist clients
+  getClients: (params?: { scope?: string; limit?: number; search?: string }) =>
     axiosInstance.get('/nutritionists/clients', { params }),
 
   // Get client details
   getClientDetails: (clientId: string) =>
     axiosInstance.get(`/nutritionists/clients/${clientId}`),
 
-  // Get nutritionist dashboard
-  getDashboard: () => axiosInstance.get('/nutritionists/dashboard'),
-
-  // Meal / diet plans
-  getMealPlans: (params?: any) =>
+  // Meal / diet plans (nutritionist-assigned)
+  getMealPlans: (params?: { limit?: number; skip?: number; status?: string }) =>
     axiosInstance.get('/nutritionists/meal-plans', { params }),
 
-  createMealPlan: (data: any) =>
+  createMealPlan: (data: Record<string, unknown>) =>
     axiosInstance.post('/nutritionists/meal-plans', data),
 
-  updateMealPlan: (planId: string, data: any) =>
+  updateMealPlan: (planId: string, data: Record<string, unknown>) =>
     axiosInstance.put(`/nutritionists/meal-plans/${planId}`, data),
 
   deleteMealPlan: (planId: string) =>
     axiosInstance.delete(`/nutritionists/meal-plans/${planId}`),
 
-  // Schedule and availability
-  getSchedule: (params?: any) =>
+  // Get nutritionist schedule
+  getSchedule: (params?: Record<string, unknown>) =>
     axiosInstance.get('/nutritionists/schedule', { params }),
 
-  getAvailabilitySlots: (params?: any) =>
-    axiosInstance.get('/nutritionists/availability-slots', { params }),
-
-  updateAvailability: (data: any) =>
-    axiosInstance.put('/nutritionists/availability', data),
-
-  // Client nutrition data
-  getClientAssessment: (clientId: string) =>
-    axiosInstance.get(`/nutritionists/clients/${clientId}/assessment`),
-
+  // Get client progress
   getClientProgress: (clientId: string) =>
     axiosInstance.get(`/nutritionists/clients/${clientId}/progress`),
 
-  getAssessments: (params?: any) =>
-    axiosInstance.get('/nutritionists/assessments', { params }),
+  // Get nutritionist dashboard
+  getDashboard: () => axiosInstance.get('/nutritionists/dashboard'),
+
+  // Get client assessment
+  getClientAssessment: (clientId: string) =>
+    axiosInstance.get(`/nutritionists/clients/${clientId}/assessment`),
 
   // Provide feedback
   provideFeedback: (clientId: string, feedback: string) =>
     axiosInstance.post(`/nutritionists/clients/${clientId}/feedback`, {
       feedback,
-      nutritionistFeedback: feedback,
     }),
 };
 
@@ -383,34 +347,49 @@ export const nutritionistAPI = {
 // ============================================
 
 export const workoutAPI = {
-  getWorkoutPlans: (params?: any) => clientAPI.getPlans(),
+  // Get all workout plans
+  getWorkoutPlans: (params?: any) =>
+    axiosInstance.get('/workouts/plans', { params }),
 
+  // Get workout plan by ID
   getWorkoutPlan: (planId: string) =>
-    axiosInstance.get(`/clients/plans/${planId}`, { params: { planType: 'workout' } }),
+    axiosInstance.get(`/workouts/plans/${planId}`),
 
+  // Create workout plan
   createWorkoutPlan: (data: any) =>
-    axiosInstance.post('/trainers/workouts', data),
+    axiosInstance.post('/workouts/plans', data),
 
+  // Update workout plan
   updateWorkoutPlan: (planId: string, data: any) =>
-    axiosInstance.put(`/trainers/workouts/${planId}`, data),
+    axiosInstance.put(`/workouts/plans/${planId}`, data),
 
+  // Delete workout plan
   deleteWorkoutPlan: (planId: string) =>
-    axiosInstance.delete(`/trainers/workouts/${planId}`),
+    axiosInstance.delete(`/workouts/plans/${planId}`),
 
-  getExercises: (params?: any) => axiosInstance.get('/workouts', { params }),
+  // Get exercises
+  getExercises: (params?: any) =>
+    axiosInstance.get('/workouts/exercises', { params }),
 
-  getExercise: (exerciseId: string) => axiosInstance.get(`/workouts/${exerciseId}`),
+  // Get exercise by ID
+  getExercise: (exerciseId: string) =>
+    axiosInstance.get(`/workouts/exercises/${exerciseId}`),
 
-  createExercise: (data: any) => axiosInstance.post('/workouts', data),
+  // Create exercise
+  createExercise: (data: any) =>
+    axiosInstance.post('/workouts/exercises', data),
 
+  // Update exercise
   updateExercise: (exerciseId: string, data: any) =>
-    axiosInstance.put(`/workouts/${exerciseId}`, data),
+    axiosInstance.put(`/workouts/exercises/${exerciseId}`, data),
 
+  // Delete exercise
   deleteExercise: (exerciseId: string) =>
-    axiosInstance.delete(`/workouts/${exerciseId}`),
+    axiosInstance.delete(`/workouts/exercises/${exerciseId}`),
 
+  // Search exercises
   searchExercises: (query: string, params?: any) =>
-    axiosInstance.get('/workouts/search', { params: { q: query, query, ...params } }),
+    axiosInstance.get(`/workouts/exercises/search/${query}`, { params }),
 };
 
 // ============================================
@@ -418,41 +397,52 @@ export const workoutAPI = {
 // ============================================
 
 export const dietAPI = {
-  getDietPlans: (params?: any) => clientAPI.getPlans(),
+  // Get all diet plans
+  getDietPlans: (params?: any) =>
+    axiosInstance.get('/diet/plans', { params }),
 
+  // Get diet plan by ID
   getDietPlan: (planId: string) =>
-    axiosInstance.get(`/clients/plans/${planId}`, { params: { planType: 'diet' } }),
+    axiosInstance.get(`/diet/plans/${planId}`),
 
+  // Create diet plan
   createDietPlan: (data: any) =>
-    axiosInstance.post('/nutritionists/meal-plans', data),
+    axiosInstance.post('/diet/plans', data),
 
+  // Update diet plan
   updateDietPlan: (planId: string, data: any) =>
-    axiosInstance.put(`/nutritionists/meal-plans/${planId}`, data),
+    axiosInstance.put(`/diet/plans/${planId}`, data),
 
+  // Delete diet plan
   deleteDietPlan: (planId: string) =>
-    axiosInstance.delete(`/nutritionists/meal-plans/${planId}`),
+    axiosInstance.delete(`/diet/plans/${planId}`),
 
-  getMeals: (params?: any) => axiosInstance.get('/diets', { params }),
+  // Get meals
+  getMeals: (params?: any) =>
+    axiosInstance.get('/diet/meals', { params }),
 
-  getMeal: (mealId: string) => axiosInstance.get(`/diets/${mealId}`),
+  // Get meal by ID
+  getMeal: (mealId: string) =>
+    axiosInstance.get(`/diet/meals/${mealId}`),
 
-  createMeal: (data: any) => axiosInstance.post('/diets', data),
+  // Create meal
+  createMeal: (data: any) => axiosInstance.post('/diet/meals', data),
 
+  // Update meal
   updateMeal: (mealId: string, data: any) =>
-    axiosInstance.put(`/diets/${mealId}`, data),
+    axiosInstance.put(`/diet/meals/${mealId}`, data),
 
-  deleteMeal: (mealId: string) => axiosInstance.delete(`/diets/${mealId}`),
+  // Delete meal
+  deleteMeal: (mealId: string) =>
+    axiosInstance.delete(`/diet/meals/${mealId}`),
 
+  // Search meals
   searchMeals: (query: string, params?: any) =>
-    axiosInstance.get('/diets/search', { params: { q: query, query, ...params } }),
+    axiosInstance.get(`/diet/meals/search/${query}`, { params }),
 
+  // Filter meals by dietary tags
   filterMealsByTags: (tags: string[], params?: any) =>
-    axiosInstance.get('/diets/search', {
-      params: { tags: tags.join(','), dietaryTags: tags.join(','), ...params },
-    }),
-
-  getDietStatistics: (params?: any) =>
-    axiosInstance.get('/progress/statistics', { params }),
+    axiosInstance.post('/diet/meals/filter', { tags }, { params }),
 };
 
 // ============================================
@@ -460,29 +450,33 @@ export const dietAPI = {
 // ============================================
 
 export const progressAPI = {
-  getProgressLogs: (params?: any) => axiosInstance.get('/progress', { params }),
+  // Get progress logs
+  getProgressLogs: (params?: Record<string, unknown>) =>
+    axiosInstance.get('/progress', { params }),
 
-  getProgressLog: (logId: string) => axiosInstance.get(`/progress/${logId}`),
+  // Get progress log by ID
+  getProgressLog: (logId: string) =>
+    axiosInstance.get(`/progress/${logId}`),
 
-  createProgressLog: (data: any) =>
-    axiosInstance.post('/progress', {
-      logType: data.logType || data.type,
-      ...data,
-    }),
+  // Create progress log
+  createProgressLog: (data: Record<string, unknown>) =>
+    axiosInstance.post('/progress', data),
 
-  updateProgressLog: (logId: string, data: any) =>
-    axiosInstance.put(`/progress/${logId}`, {
-      logType: data.logType || data.type,
-      ...data,
-    }),
+  // Update progress log
+  updateProgressLog: (logId: string, data: Record<string, unknown>) =>
+    axiosInstance.put(`/progress/${logId}`, data),
 
-  deleteProgressLog: (logId: string) => axiosInstance.delete(`/progress/${logId}`),
+  // Delete progress log
+  deleteProgressLog: (logId: string) =>
+    axiosInstance.delete(`/progress/${logId}`),
 
+  // Get progress statistics
   getProgressStatistics: (params?: any) =>
     axiosInstance.get('/progress/statistics', { params }),
 
+  // Get progress by date range
   getProgressByDateRange: (startDate: string, endDate: string, params?: any) =>
-    axiosInstance.get('/progress', {
+    axiosInstance.get('/progress/date-range', {
       params: { startDate, endDate, ...params },
     }),
 };
@@ -510,10 +504,7 @@ export const appointmentAPI = {
 
   // Cancel appointment
   cancelAppointment: (appointmentId: string, reason?: string) =>
-    axiosInstance.post(`/appointments/${appointmentId}/cancel`, {
-      reason,
-      cancellationReason: reason,
-    }),
+    axiosInstance.post(`/appointments/${appointmentId}/cancel`, { reason }),
 
   // Reschedule appointment
   rescheduleAppointment: (appointmentId: string, newDate: string) =>
@@ -523,34 +514,32 @@ export const appointmentAPI = {
 
   // Complete appointment
   completeAppointment: (appointmentId: string, notes?: string) =>
-    axiosInstance.post(`/appointments/${appointmentId}/complete`, {
-      notes,
-      expertNotes: notes,
-    }),
+    axiosInstance.post(`/appointments/${appointmentId}/complete`, { notes }),
 
+  // Approve appointment (expert)
   approveAppointment: (appointmentId: string) =>
     axiosInstance.post(`/appointments/${appointmentId}/approve`),
 
+  // Reject appointment (expert)
   rejectAppointment: (appointmentId: string, reason?: string) =>
     axiosInstance.post(`/appointments/${appointmentId}/reject`, { reason }),
 
+  // Mark no-show (expert)
+  markNoShow: (appointmentId: string) =>
+    axiosInstance.post(`/appointments/${appointmentId}/no-show`),
+
+  // Rate appointment (client)
+  rateAppointment: (
+    appointmentId: string,
+    data: { rating: number; feedback?: string }
+  ) => axiosInstance.post(`/appointments/${appointmentId}/rate`, data),
+
+  // Payment checkout (dummy Stripe flow)
   createCheckoutSession: (appointmentId: string) =>
     axiosInstance.post('/payments/create-checkout-session', { appointmentId }),
 
   confirmPayment: (appointmentId: string, sessionId?: string) =>
     axiosInstance.post('/payments/confirm', { appointmentId, sessionId }),
-
-  // Mark no-show
-  markNoShow: (appointmentId: string, reason?: string) =>
-    axiosInstance.post(`/appointments/${appointmentId}/no-show`, { reason }),
-
-  // Client rates completed appointment
-  rateAppointment: (appointmentId: string, data: { rating: number; feedback?: string }) =>
-    axiosInstance.post(`/appointments/${appointmentId}/rate`, {
-      rating: data.rating,
-      feedback: data.feedback,
-      clientFeedback: data.feedback,
-    }),
 
   // Get available slots
   getAvailableSlots: (expertId: string, params?: any) =>
@@ -566,62 +555,90 @@ export const appointmentAPI = {
 // ============================================
 
 export const chatAPI = {
+  // Get conversations
   getConversations: (params?: any) =>
     axiosInstance.get('/chat/conversations', { params }),
 
-  getUnreadCount: () => axiosInstance.get('/chat/unread-count'),
-
+  // Get conversation messages
   getMessages: (conversationId: string, params?: any) =>
     axiosInstance.get(`/chat/messages/${conversationId}`, { params }),
 
+  // Send message (creates conversation when conversationId omitted)
   sendMessage: (
     conversationId: string | undefined,
-    contentOrPayload: string | { content: string; receiverId?: string; conversationId?: string },
-    receiverId?: string
+    data:
+      | { content: string; receiverId: string; conversationId?: string }
+      | string,
+    attachments?: any[]
   ) => {
-    const resolvedConversationId =
-      typeof contentOrPayload === 'string'
-        ? conversationId
-        : contentOrPayload.conversationId ?? conversationId;
-
-    const payload: Record<string, string> =
-      typeof contentOrPayload === 'string'
-        ? {
-            messageContent: contentOrPayload,
-            receiverId: receiverId || '',
-          }
-        : {
-            messageContent: contentOrPayload.content,
-            receiverId: contentOrPayload.receiverId || receiverId || '',
-          };
-
-    if (resolvedConversationId && resolvedConversationId !== 'new') {
-      payload.conversationId = resolvedConversationId;
+    if (typeof data === 'string') {
+      if (!conversationId) {
+        throw new Error('conversationId is required when sending message text only');
+      }
+      return axiosInstance.post('/chat/messages', {
+        conversationId,
+        content: data,
+        messageContent: data,
+        attachments,
+      });
     }
 
-    return axiosInstance.post('/chat/messages', payload);
+    const resolvedConversationId =
+      data.conversationId ||
+      (conversationId && conversationId !== 'new' ? conversationId : undefined);
+
+    return axiosInstance.post('/chat/messages', {
+      conversationId: resolvedConversationId,
+      receiverId: data.receiverId,
+      content: data.content,
+      messageContent: data.content,
+    });
   },
 
-  editMessage: (_conversationId: string, messageId: string, content: string) =>
-    axiosInstance.put(`/chat/messages/${messageId}`, { messageContent: content }),
+  // Edit message
+  editMessage: (conversationId: string, messageId: string, content: string) =>
+    axiosInstance.put(
+      `/chat/conversations/${conversationId}/messages/${messageId}`,
+      { content }
+    ),
 
-  deleteMessage: (_conversationId: string, messageId: string) =>
-    axiosInstance.delete(`/chat/messages/${messageId}`),
+  // Delete message
+  deleteMessage: (conversationId: string, messageId: string) =>
+    axiosInstance.delete(
+      `/chat/conversations/${conversationId}/messages/${messageId}`
+    ),
 
-  markAsRead: (_conversationId: string, messageId: string) =>
-    axiosInstance.put(`/chat/messages/${messageId}/read`),
+  // Mark message as read
+  markAsRead: (conversationId: string, messageId: string) =>
+    axiosInstance.post(
+      `/chat/conversations/${conversationId}/messages/${messageId}/read`
+    ),
 
+  // Mark all messages as read
   markAllAsRead: (conversationId: string) =>
-    axiosInstance.put(`/chat/conversations/${conversationId}/read`, { conversationId }),
+    axiosInstance.put(`/chat/conversations/${conversationId}/read`),
 
+  // Get conversation
   getConversation: (conversationId: string) =>
-    axiosInstance.get(`/chat/messages/${conversationId}`),
+    axiosInstance.get(`/chat/conversations/${conversationId}`),
 
+  // Create conversation
   createConversation: (participantIds: string[]) =>
-    axiosInstance.post('/chat/messages', { participantIds }),
+    axiosInstance.post('/chat/conversations', { participantIds }),
 
-  addReaction: (_conversationId: string, messageId: string, emoji: string) =>
-    axiosInstance.post(`/chat/messages/${messageId}/react`, { reaction: emoji }),
+  // Add reaction to message
+  addReaction: (
+    conversationId: string,
+    messageId: string,
+    emoji: string
+  ) =>
+    axiosInstance.post(
+      `/chat/conversations/${conversationId}/messages/${messageId}/reactions`,
+      { emoji }
+    ),
+
+  // Get total unread message count
+  getUnreadCount: () => axiosInstance.get('/chat/unread-count'),
 };
 
 // ============================================
@@ -662,25 +679,48 @@ export const notificationAPI = {
 // ============================================
 
 export const adminAPI = {
-  getPendingExperts: () =>
-    axiosInstance.get('/admin/users', {
-      params: { status: 'pending_approval' },
-    }),
+  // Get admin dashboard
+  getDashboard: () => axiosInstance.get('/admin/dashboard'),
 
-  getUsers: (params?: { status?: string; role?: string; search?: string; limit?: number }) =>
+  // Get all users
+  getUsers: (params?: any) =>
     axiosInstance.get('/admin/users', { params }),
 
+  // Pending trainer/nutritionist approvals
+  getPendingExperts: (params?: any) =>
+    axiosInstance.get('/admin/users', {
+      params: { status: 'pending_approval', limit: 100, ...params },
+    }),
+
+  // Get user details
+  getUserDetails: (userId: string) =>
+    axiosInstance.get(`/admin/users/${userId}`),
+
+  // Approve expert
   approveExpert: (userId: string) =>
     axiosInstance.post(`/admin/users/${userId}/approve`),
 
-  rejectExpert: (userId: string) =>
-    axiosInstance.post(`/admin/users/${userId}/reject`),
+  // Reject expert
+  rejectExpert: (userId: string, reason?: string) =>
+    axiosInstance.post(`/admin/users/${userId}/reject`, { reason }),
 
-  suspendUser: (userId: string) =>
-    axiosInstance.post(`/admin/users/${userId}/suspend`),
+  // Suspend user
+  suspendUser: (userId: string, reason?: string) =>
+    axiosInstance.post(`/admin/users/${userId}/suspend`, { reason }),
 
+  // Unsuspend user
   unsuspendUser: (userId: string) =>
     axiosInstance.post(`/admin/users/${userId}/unsuspend`),
+
+  // Get activity logs
+  getActivityLogs: (params?: any) =>
+    axiosInstance.get('/admin/activity-logs', { params }),
+
+  // Get system reports
+  getSystemReports: (params?: any) =>
+    axiosInstance.get('/admin/reports', { params }),
 };
+
+export { parseUserProfileResponse } from './apiHelpers';
 
 export default axiosInstance;

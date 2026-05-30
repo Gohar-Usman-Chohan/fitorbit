@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { UtensilsCrossed } from 'lucide-react';
-import { dietAPI } from '@/lib/api';
+import { clientAPI, progressAPI } from '@/lib/api';
 import { mapClientDietPlan, normalizeProgressStats } from '@/lib/apiHelpers';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { DietLogForm } from '@/components/forms/DietLogForm';
@@ -34,8 +34,8 @@ export default function NutritionContent() {
     try {
       setIsLoading(true);
       const [plansRes, statsRes] = await Promise.all([
-        dietAPI.getDietPlans(),
-        dietAPI.getDietStatistics(),
+        clientAPI.getPlans(),
+        progressAPI.getProgressStatistics(),
       ]);
 
       setPlans((plansRes.data.data?.dietPlans || []).map(mapClientDietPlan));

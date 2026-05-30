@@ -25,6 +25,8 @@ const {
   BLOCKING_STATUSES,
   validateBookingRequest,
   generateAvailableSlots,
+  parseAppointmentDateTime,
+  buildLocalDateTime,
 } = require('../utils/bookingRules');
 const { calculateSessionAmount } = require('../utils/appointmentHelpers');
 const { validateAppointmentInput, validateRatingInput } = require('../utils/validators');
@@ -107,10 +109,18 @@ const listAppointments = async (req, res, next) => {
 const createAppointment = async (req, res, next) => {
   try {
     const clientId = req.body.clientId || req.user.id;
-    const { expertId, expertType, appointmentDate, duration, durationUnit, sessionType, location, topic, clientNotes } = req.body;
+    const { expertId, expertType, appointmentDate, appointmentTime, duration, durationUnit, sessionType, location, topic, clientNotes } = req.body;
 
     if (!clientId || !expertId || !appointmentDate || !duration) {
       throw new AppError('Missing required fields', 400);
+    }
+
+    if (
+      typeof appointmentDate === 'string' &&
+      /^\d{4}-\d{2}-\d{2}$/.test(appointmentDate) &&
+      !appointmentTime
+    ) {
+      throw new AppError('Appointment time is required', 400);
     }
 
     validateAppointmentInput(req.body);
@@ -121,7 +131,10 @@ const createAppointment = async (req, res, next) => {
       throw new AppError('Expert not found', 404);
     }
 
-    const parsedDate = new Date(appointmentDate);
+    const parsedDate = parseAppointmentDateTime(appointmentDate, appointmentTime);
+    if (Number.isNaN(parsedDate.getTime())) {
+      throw new AppError('Invalid appointment date or time', 400);
+    }
     const durationMinutes = durationUnit === 'hours' ? duration * 60 : duration;
 
     const existingAppointments = await Appointment.find({
@@ -613,12 +626,15 @@ const getAvailability = async (req, res, next) => {
       throw new AppError('Expert ID is required', 400);
     }
 
+    const dayStart = buildLocalDateTime(date, '00:00');
+    const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+
     const existingAppointments = await Appointment.find({
       expertId,
       status: { $in: BLOCKING_STATUSES },
       appointmentDate: {
-        $gte: new Date(`${date}T00:00:00`),
-        $lt: new Date(new Date(`${date}T00:00:00`).getTime() + 24 * 60 * 60 * 1000),
+        $gte: dayStart,
+        $lt: dayEnd,
       },
     });
 

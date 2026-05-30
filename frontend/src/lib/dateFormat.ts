@@ -42,3 +42,13 @@ export function formatChartDateTime(value: DateInput): string {
   if (!date) return '';
   return format(date, 'MMMM d, yyyy h:mm a');
 }
+
+/** Local yyyy-MM-dd for `<input type="date">` (avoids UTC off-by-one). */
+export function todayDateInputValue(date = new Date()): string {
+  return format(date, 'yyyy-MM-dd');
+}
+
+export function isPastDateInputValue(value: string): boolean {
+  if (!value) return false;
+  return value < todayDateInputValue();
+}

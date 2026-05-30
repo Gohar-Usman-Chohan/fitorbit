@@ -15,8 +15,9 @@ const env = {
   // Database
   MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/fitorbit',
 
-  // Frontend
+  // Frontend / CORS
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:3000',
+  CORS_ORIGIN: process.env.CORS_ORIGIN,
 
   // JWT
   JWT_SECRET: process.env.JWT_SECRET || 'your-secret-key-change-in-production',

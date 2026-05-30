@@ -97,19 +97,20 @@ export function AppointmentBookingForm({
       const selectedSlot = availableSlots.find(
         (slot) => slot.time === formData.appointmentTime
       );
-      if (selectedSlot && !selectedSlot.available) {
+      if (!selectedSlot) {
+        toast.error('Please select a valid time slot');
+        return;
+      }
+      if (!selectedSlot.available) {
         toast.error('This time slot is no longer available');
         return;
       }
 
-      const appointmentDateTime = new Date(
-        `${formData.appointmentDate}T${formData.appointmentTime}`
-      );
-
       await appointmentAPI.createAppointment({
         expertId,
         expertType,
-        appointmentDate: appointmentDateTime,
+        appointmentDate: formData.appointmentDate,
+        appointmentTime: formData.appointmentTime,
         duration: parseInt(formData.duration),
         durationUnit: 'minutes',
         sessionType: formData.sessionType,

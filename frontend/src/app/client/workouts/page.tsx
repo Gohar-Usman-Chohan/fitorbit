@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Dumbbell } from 'lucide-react';
-import { progressAPI, workoutAPI } from '@/lib/api';
+import { clientAPI, progressAPI } from '@/lib/api';
 import { mapClientWorkoutPlan } from '@/lib/apiHelpers';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { WorkoutLogForm } from '@/components/forms/WorkoutLogForm';
@@ -38,7 +38,7 @@ export default function WorkoutsContent() {
     try {
       setIsLoading(true);
       const [plansRes, logsRes] = await Promise.all([
-        workoutAPI.getWorkoutPlans(),
+        clientAPI.getPlans(),
         progressAPI.getProgressLogs({ logType: 'workout' }),
       ]);
       setPlans((plansRes.data.data?.workoutPlans || []).map(mapClientWorkoutPlan));
